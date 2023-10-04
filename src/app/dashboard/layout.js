@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Header from "./components/Header";
+import Header from "../../components/deshboard/Header";
 
 
 const layout = ({ children }) => {
@@ -20,8 +20,9 @@ const layout = ({ children }) => {
                     <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
                     <ul className="menu p-4 w-80 h-full bg-base-200 text-base-content">
                         {/* Sidebar content here */}
-                        <li><Link href={''}></Link></li>
-                        <li><a>Sidebar Item 2</a></li>
+                        <li><Link href={'/'}></Link></li>
+                        <li><Link href={'/dashboard/users'}>Users</Link></li>
+                        <li><Link href={'/dashboard/jobs'}>Jobs</Link></li>
                     </ul>
 
                 </div>

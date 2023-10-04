@@ -2,3 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+.my-container{
+    @apply px-2 md:max-w-screen-md md:px-5 lg:max-w-screen-lg  mx-auto
+}
+@keyframes custom-animation {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-custom {
+    animation: custom-animation 0.5s ease-in-out;
+  }
+  
+  
+  
+  
+  
+  
