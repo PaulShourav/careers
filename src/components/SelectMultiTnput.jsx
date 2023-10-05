@@ -22,8 +22,6 @@ const SelectMultiTnput = ({ selectValue, setSelectValue, placeholder ,fieldName}
         }
     };
     const handleDeleteSelectedField = (id) => {
-        console.log(id);
-
         const updateData = selectValue?.filter(element => element._id !== id)
         setSelectValue(updateData);
     }

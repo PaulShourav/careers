@@ -10,7 +10,7 @@ import slugGenerate from "@/utilis/slugGenerate";
 import toast from "react-hot-toast";
 
 const AddandEditForm = ({ editJobData }) => {
-    const editData=editJobData || null;
+    const editData = editJobData || null;
     const [longTitle, setLongTitle] = useState(null)
     const [uniqueTitleCheck, setUniqueTitleCheck] = useState('')
     const [publishedOn, setPublishedOn] = useState(null);
@@ -19,17 +19,17 @@ const AddandEditForm = ({ editJobData }) => {
     const [customRequiredError, setCustomRequiredError] = useState('')
     const [educationalRequirements, setEducationalRequirements] = useState([]);
     const [experienceRequirements, setExperienceRequirements] = useState([]);
- 
-    const { register, handleSubmit, reset,setValue, formState: { errors } } = useForm();
+
+    const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
 
     useEffect(() => {
 
-        if (editData !==null ) {
-            setValue('title',editData?.title)
-            setValue('vacancy',editData?.vacancy)
-            setValue('jobType',editData?.jobType)
-            setValue('salary',editData?.salary)
-            setValue('location',editData?.location)
+        if (editData !== null) {
+            setValue('title', editData?.title)
+            setValue('vacancy', editData?.vacancy)
+            setValue('jobType', editData?.jobType)
+            setValue('salary', editData?.salary)
+            setValue('location', editData?.location)
             setLongTitle(editData?.longTitle)
             setJobResponsibilities(editData?.jobResponsibilities)
             setEducationalRequirements(editData?.educationalRequirements)
@@ -39,8 +39,8 @@ const AddandEditForm = ({ editJobData }) => {
         }
 
     }, [editData])
+    console.log(jobResponsibilities);
 
-   
     const handleAddJob = (data) => {
         //Custom error handle
         if (longTitle === '' || publishedOn == null || deadline == null || jobResponsibilities.length == 0 || educationalRequirements.length == 0 || experienceRequirements.length == 0) { return setCustomRequiredError('Field in required.') }
@@ -58,31 +58,54 @@ const AddandEditForm = ({ editJobData }) => {
             .then(data => {
                 if (data.titleError) {
                     setUniqueTitleCheck(data.titleError)
-                } 
-                set
+                }
+                if (data.statusCode == 200) {
                 toast.success(data.message)
-            reset()
-            setLongTitle(null)
-            setJobResponsibilities([])
-            setEducationalRequirements([])
-            setExperienceRequirements([])
-            setPublishedOn(null)
-            setDeadline(null)
+                reset()
+                setLongTitle(null)
+                setJobResponsibilities([])
+                setEducationalRequirements([])
+                setExperienceRequirements([])
+                setPublishedOn(null)
+                setDeadline(null)
+                }
             })
     }
-    const handleUpdate=(data)=>{
+    const handleUpdate = (data) => {
+        //Custom error handle
+        if (longTitle === '' || publishedOn == null || deadline == null || jobResponsibilities.length == 0 || educationalRequirements.length == 0 || experienceRequirements.length == 0) { return setCustomRequiredError('Field in required.') }
+
+        const _id = editData?._id
         //Generate Slug by title
         const slug = slugGenerate(data.title)
-        const newData = { ...data, slug, publishedOn, deadline, longTitle, jobResponsibilities, educationalRequirements, experienceRequirements }
-        console.log(newData);
+        const newData = { _id, ...data, slug, publishedOn, deadline, longTitle, jobResponsibilities, educationalRequirements, experienceRequirements }
+        fetch('http://localhost:5000/jobs/update', {
+            method: 'PATCH',
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(newData)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.titleError) {
+                    setUniqueTitleCheck(data.titleError)
+                }
+                if (data.statusCode == 200) {
+                    toast.success(data?.message)
+                    //Modal close by Id
+                    document.getElementById(editData?._id).checked = false
+                }
+                console.log(data);
+            })
     }
+
     return (
-        <form onSubmit={editData == null? handleSubmit(handleAddJob):handleSubmit(handleUpdate)}>
+        <form onSubmit={editData == null ? handleSubmit(handleAddJob) : handleSubmit(handleUpdate)}>
+
             <div className="flex flex-col md:flex-row gap-3">
                 <div className="w-full md:basis-1/2">
                     <div className=" form-control w-full">
                         <label className="my-1">Job Tilte:<span className="text-red-800">*</span></label>
-                        <input type="text" placeholder="Type here" {...register("title", { required: true })}  className="input input-bordered input-primary  w-full " />
+                        <input type="text" placeholder="Type here" {...register("title", { required: true })} className="input input-bordered input-primary  w-full " />
                         {errors.title?.type === "required" && (
                             <p className="text-red-400">Job title field is required</p>
                         )}
@@ -103,7 +126,7 @@ const AddandEditForm = ({ editJobData }) => {
                 <div className="w-full md:basis-1/4">
                     <div className="form-control w-full">
                         <label className="my-1">Job Type:<span className="text-red-800">*</span></label>
-                        <input type="text"  placeholder="Type here" {...register("jobType", { required: true })} className="input input-bordered input-primary  w-full " />
+                        <input type="text" placeholder="Type here" {...register("jobType", { required: true })} className="input input-bordered input-primary  w-full " />
                         {errors.jobType?.type === "required" && (
                             <p className="text-red-400">Job type is required</p>
                         )}
@@ -141,11 +164,11 @@ const AddandEditForm = ({ editJobData }) => {
                             dateFormat: 'd-M-Y',
                             enableTime: false,
                         }}
-                        onChange={(date)=>setPublishedOn(date[0])}
+                        onChange={(day, date, instance) => setPublishedOn(date)}
                     />
                     {publishedOn == null && customRequiredError !== '' ? (
-                    <p className="text-red-400">{customRequiredError}</p>
-                ) : ''}
+                        <p className="text-red-400">{customRequiredError}</p>
+                    ) : ''}
 
                 </div>
                 <div className="form-control w-full md:basis-1/5">
@@ -157,11 +180,11 @@ const AddandEditForm = ({ editJobData }) => {
                             dateFormat: 'd-M-Y',
                             enableTime: false,
                         }}
-                        onChange={(date)=>setDeadline(date[0])}
+                        onChange={(day, date, instance) => setDeadline(date)}
                     />
                     {deadline == null && customRequiredError !== '' ? (
-                    <p className="text-red-400">{customRequiredError}</p>
-                ) : ''}
+                        <p className="text-red-400">{customRequiredError}</p>
+                    ) : ''}
 
                 </div>
 

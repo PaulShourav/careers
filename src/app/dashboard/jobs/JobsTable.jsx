@@ -14,11 +14,11 @@ const JobsTable = () => {
 
     const fetcher = (...args) => fetch(...args).then(res => res.json())
     const { data: jobs = [], } = useSWR('http://localhost:5000/jobs', fetcher);
-    console.log(jobs);
+    // console.log(jobs);
     const handleStatus = (_id, status) => {
         console.log(_id, status);
         fetch(`http://localhost:5000/jobs?_id=${_id}&status=${status}`, {
-            method: 'PUT'
+            method: 'PATCH'
         })
             .then(res => res.json())
             .then(data => {
@@ -42,12 +42,17 @@ const JobsTable = () => {
             })
     }
     //Get Job data by ID
-    const handleEdit = (_id,job) => {
+    const handleEdit = (_id,slug) => {
         setModalId(_id)
         setModalTitle('Edit Job post')
-        setEditJobData(job)  
+        
+        fetch(`http://localhost:5000/jobs/${slug}`)
+            .then(res => res.json())
+            .then(data => {
+                setEditJobData(data)
+            })
     }
-    
+
     return (
         <>
             <div className="overflow-x-auto">
@@ -73,7 +78,7 @@ const JobsTable = () => {
                                 <td><button className="btn btn-xs btn-primary" onClick={() => handleStatus(job._id, job.status == 'deactive' ? 'active' : 'deactive')}>{job.status}</button></td>
                                 <td>
                                     <div className="join">
-                                    <label htmlFor={job._id} onClick={()=>handleEdit(job._id,job)} className="btn btn-xs btn-primary join-item"><FaPenToSquare /></label>
+                                        <label htmlFor={job._id} onClick={() => handleEdit(job._id,job.slug)} className="btn btn-xs btn-primary join-item"><FaPenToSquare /></label>
                                         <button className="btn btn-xs join-item"><FaCircleInfo /></button>
                                         <button onClick={() => handleDelete(job._id)} className="btn btn-xs btn-warning join-item" ><FaTrashCan /></button>
                                     </div></td>
@@ -83,8 +88,8 @@ const JobsTable = () => {
                     </tbody>
                 </table>
             </div>
-            <Model   modalId={modalId} modelTitle={modalTitle}>
-                <AddandEditForm editJobData={editJobData}/>
+            <Model modalId={modalId} modelTitle={modalTitle}>
+                <AddandEditForm editJobData={editJobData} />
             </Model>
         </>
     );
