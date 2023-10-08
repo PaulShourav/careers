@@ -1,19 +1,20 @@
 'use client'
 import { FaCircleInfo, FaPenToSquare, FaTrashCan } from "react-icons/fa6";
 import toast from "react-hot-toast";
-import useSWR, { mutate } from "swr";
 import Model from "@/components/Model";
 import { useState } from "react";
 import AddandEditForm from "./AddandEditForm";
+import ShowJobDetails from "./ShowJobDetails";
+import getAllJobs from "@/utilis/getAllJobs";
 
 
 const JobsTable = () => {
     const [modalId, setModalId] = useState(null);
     const [modalTitle, setModalTitle] = useState('');
     const [editJobData, setEditJobData] = useState(null);
+    const [jobDetails, setJobDeatails] = useState(null);
 
-    const fetcher = (...args) => fetch(...args).then(res => res.json())
-    const { data: jobs = [], } = useSWR('http://localhost:5000/jobs', fetcher);
+    const {jobs,mutate}=getAllJobs()
     // console.log(jobs);
     const handleStatus = (_id, status) => {
         console.log(_id, status);
@@ -52,7 +53,20 @@ const JobsTable = () => {
                 setEditJobData(data)
             })
     }
-
+    const handleJobDetails=(_id,slug)=>{
+        setModalId(_id)
+        setModalTitle('Job Details')
+        
+        fetch(`http://localhost:5000/jobs/details/${slug}`)
+            .then(res => res.json())
+            .then(data => {
+                setJobDeatails(data)
+            })
+    }
+console.log(modalId);
+console.log(modalTitle);
+console.log(editJobData);
+console.log(jobDetails);
     return (
         <>
             <div className="overflow-x-auto">
@@ -79,7 +93,7 @@ const JobsTable = () => {
                                 <td>
                                     <div className="join">
                                         <label htmlFor={job._id} onClick={() => handleEdit(job._id,job.slug)} className="btn btn-xs btn-primary join-item"><FaPenToSquare /></label>
-                                        <button className="btn btn-xs join-item"><FaCircleInfo /></button>
+                                        <label htmlFor={job._id} onClick={()=>handleJobDetails(job._id,job.slug)} className="btn btn-xs join-item"><FaCircleInfo /></label>
                                         <button onClick={() => handleDelete(job._id)} className="btn btn-xs btn-warning join-item" ><FaTrashCan /></button>
                                     </div></td>
                             </tr>
@@ -88,8 +102,9 @@ const JobsTable = () => {
                     </tbody>
                 </table>
             </div>
-            <Model modalId={modalId} modelTitle={modalTitle}>
-                <AddandEditForm editJobData={editJobData} />
+            <Model modalId={modalId} modelTitle={modalTitle} setData={editJobData !== null &&setEditJobData || jobDetails !== null &&  setJobDeatails}>
+                {editJobData !== null && <AddandEditForm editJobData={editJobData} setEditJobData={setEditJobData}/>}
+                {jobDetails !== null && <ShowJobDetails jobDetails={jobDetails}/>}
             </Model>
         </>
     );

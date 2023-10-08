@@ -9,7 +9,7 @@ import SelectMultiTnput from "@/components/SelectMultiTnput";
 import slugGenerate from "@/utilis/slugGenerate";
 import toast from "react-hot-toast";
 
-const AddandEditForm = ({ editJobData }) => {
+const AddandEditForm = ({ editJobData, setEditJobData }) => {
     const editData = editJobData || null;
     const [longTitle, setLongTitle] = useState(null)
     const [uniqueTitleCheck, setUniqueTitleCheck] = useState('')
@@ -39,7 +39,6 @@ const AddandEditForm = ({ editJobData }) => {
         }
 
     }, [editData])
-    console.log(jobResponsibilities);
 
     const handleAddJob = (data) => {
         //Custom error handle
@@ -93,6 +92,7 @@ const AddandEditForm = ({ editJobData }) => {
                     toast.success(data?.message)
                     //Modal close by Id
                     document.getElementById(editData?._id).checked = false
+                    setEditJobData(null)
                 }
                 console.log(data);
             })
